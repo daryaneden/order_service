@@ -9,7 +9,7 @@ from app.application.use_cases.get_order_by_id import GetOrderUseCase
 from app.application.exceptions import OrderNotFoundException
 router = APIRouter(prefix="/api/orders", tags=["Orders"])
 
-@router.get("{order_id}",response_model=OrderResponse)
+@router.get("/{order_id}",response_model=OrderResponse)
 async def get_order(order_id: UUID,
     use_case: Annotated[GetOrderUseCase, Depends(get_get_order_by_id_use_case)]) -> OrderResponse:
     try:
