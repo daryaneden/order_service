@@ -13,7 +13,7 @@ class Settings(BaseSettings):
     POSTGRES_USERNAME: str = 'postgres'
     POSTGRES_PASSWORD: str = 'password'
     DB_DRIVER: str = 'postgresql+asyncpg'
-    POSTGRES_DB: str = 'order_service'
+    POSTGRES_DB: str = 'student_daryaneden-order-service-postgres'
 
 
     @property
