@@ -4,9 +4,12 @@ WORKDIR /app
 
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
+ENV UV_PYTHON=/usr/local/bin/python
+ENV UV_PYTHON_DOWNLOADS=never
+
 COPY pyproject.toml uv.lock ./
 
-RUN uv sync
+RUN uv sync --python /usr/local/bin/python
 
 COPY . .
 
