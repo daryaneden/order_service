@@ -14,6 +14,7 @@ class Order:
     item_id: UUID
     unit_price: Decimal
     status: OrderStatus
+    idempotency_key: str
     created_at: datetime | None = None
     updated_at: datetime | None = None
 
