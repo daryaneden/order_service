@@ -58,6 +58,11 @@ class SqlAlchemyOrderRepository(OrderRepository):
         result = await self.session.execute(statement)
         updated_order = result.scalar_one()
 
+        model = result.scalar_one()
+
+        order.created_at = model.created_at
+        order.updated_at = model.updated_at
+
         return self._to_entity(updated_order)
 
     def _to_entity(self, order_model: OrderModel) -> Order:
