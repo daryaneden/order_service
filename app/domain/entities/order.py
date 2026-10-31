@@ -4,6 +4,7 @@ from datetime import datetime
 from decimal import Decimal
 
 from app.domain.enums.order_status import OrderStatus
+from app.domain.enums.payment_status import PaymentStatus
 from app.domain.exceptions.order_exceptions import InvalidOrderQuantityError, InvalidOrderPriceError
 
 @dataclass
@@ -15,6 +16,8 @@ class Order:
     unit_price: Decimal
     status: OrderStatus
     idempotency_key: str
+    payment_id: UUID | None = None
+    payment_status: PaymentStatus | None = None
     created_at: datetime | None = None
     updated_at: datetime | None = None
 

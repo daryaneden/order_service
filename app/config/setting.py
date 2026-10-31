@@ -15,6 +15,8 @@ class Settings(BaseSettings):
     DB_DRIVER: str = 'postgresql+asyncpg'
     POSTGRES_DB: str = 'student_daryaneden-order-service-postgres'
 
+    PAYMENT_CALLBACK_URL: str
+
 
     @property
     def db_url(self):

@@ -1,18 +1,18 @@
 from uuid import UUID
 
-from sqlalchemy import select
+from sqlalchemy import select, update
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.ports.order_repository import OrderRepository
-from app.application.dtos.order import OrderDto
 from app.infrastructure.database.models.order import OrderModel
 from app.domain.entities.order import Order
 
 class SqlAlchemyOrderRepository(OrderRepository):
 
-    def __init__(self, session):
+    def __init__(self, session: AsyncSession):
         self.session = session
 
-    async def create_order(self, order: OrderDto) -> Order:
+    async def create_order(self, order: Order) -> Order:
         order_model = OrderModel(
                 id=order.id,
                 user_id=order.user_id,
@@ -47,6 +47,18 @@ class SqlAlchemyOrderRepository(OrderRepository):
             return None
 
         return self._to_entity(order_model)
+
+    
+    async def update_order(self, order: Order) -> Order:
+        statement = (update(OrderModel).where(OrderModel.id == order.id)
+            .values(status=order.status,
+                    payment_id=order.payment_id,
+                    payment_status=order.payment_status).returning(OrderModel))
+
+        result = await self.session.execute(statement)
+        updated_order = result.scalar_one()
+
+        return self._to_entity(updated_order)
 
     def _to_entity(self, order_model: OrderModel) -> Order:
         return Order(

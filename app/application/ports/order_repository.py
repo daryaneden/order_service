@@ -17,3 +17,7 @@ class OrderRepository(ABC):
     @abstractmethod
     async def get_by_idempotency_key(self, idempotency_key: str) -> Order | None:
             pass
+
+    @abstractmethod
+    async def update_order(self, order: Order) -> Order:
+        pass

@@ -7,6 +7,7 @@ from sqlalchemy.dialects.postgresql import UUID as PGUUID
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.domain.enums.order_status import OrderStatus
+from app.domain.enums.payment_status import PaymentStatus
 from app.infrastructure.database.db import Base
 
 
@@ -54,6 +55,16 @@ PGUUID(as_uuid=True),
         String(255),
         nullable=False,
         unique=True,
+    )
+
+    payment_id: Mapped[UUID | None] = mapped_column(
+    UUID(as_uuid=True),
+    nullable=True,
+)
+
+    payment_status: Mapped[PaymentStatus | None] = mapped_column(
+        Enum(PaymentStatus),
+        nullable=True,
     )
 
     created_at: Mapped[datetime] = mapped_column(

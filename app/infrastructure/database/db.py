@@ -2,6 +2,8 @@ from typing import Any
 
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 from sqlalchemy.orm import DeclarativeBase, declared_attr
+from sqlalchemy.ext.asyncio import AsyncSession
+from collections.abc import AsyncIterator
 
 from app.config.setting import Settings
 
@@ -23,11 +25,6 @@ class Base(DeclarativeBase):
     def __tablename__(self) -> str:
         return self.__name__.lower()
 
-async def get_db_session():
+async def get_db_session() -> AsyncIterator[AsyncSession]:
     async with AsyncSessionFactory() as session:
-        try:
-            yield session
-            await session.commit()
-        except Exception:
-            await session.rollback()
-            raise
+        yield session
