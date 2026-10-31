@@ -56,14 +56,13 @@ class SqlAlchemyOrderRepository(OrderRepository):
                     payment_status=order.payment_status).returning(OrderModel))
 
         result = await self.session.execute(statement)
-        updated_order = result.scalar_one()
 
         model = result.scalar_one()
 
         order.created_at = model.created_at
         order.updated_at = model.updated_at
 
-        return self._to_entity(updated_order)
+        return self._to_entity(model)
 
     def _to_entity(self, order_model: OrderModel) -> Order:
         return Order(
