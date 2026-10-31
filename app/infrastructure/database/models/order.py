@@ -58,7 +58,7 @@ PGUUID(as_uuid=True),
     )
 
     payment_id: Mapped[UUID | None] = mapped_column(
-    UUID(as_uuid=True),
+    PGUUID(as_uuid=True),
     nullable=True,
 )
 
