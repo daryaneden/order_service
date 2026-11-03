@@ -9,6 +9,10 @@ from app.application.exceptions import InsufficientQuantityError, ItemOutOfStock
 from app.domain.entities.order import Order
 from app.domain.enums.order_status import OrderStatus
 
+import logging
+
+logger = logging.getLogger(__name__)
+
 class CreateOrderUseCase():
 
     def __init__(self, uow_factory: UnitOfWorkFactory,
@@ -67,8 +71,21 @@ class CreateOrderUseCase():
             idempotency_key=order.idempotency_key,
         )
 
+        logger.info(
+            "Sending payment creation request: order_id=%s",
+            order.id,
+        )
+
         try:
             payment = await self.payment_port.create_payment(payment_data)
+
+            logger.info(
+            "Payment creation response received: order_id=%s, "
+            "payment_id=%s, payment_status=%s",
+            order.id,
+            payment.id,
+            payment.status,
+        )
 
         except PaymentCreationUnknownException:
             raise

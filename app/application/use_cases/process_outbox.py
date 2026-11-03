@@ -17,6 +17,8 @@ class ProcessOutboxUseCase:
 
         async with self.uow_factory() as uow:
             messages = await uow.outbox_repository.get_pending()
+
+            logger.info("Found %s pending outbox messages", len(messages))
         
         for message in messages:
             message_to_publish=message.payload

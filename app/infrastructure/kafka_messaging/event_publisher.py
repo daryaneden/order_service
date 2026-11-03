@@ -26,4 +26,6 @@ class KafkaEventPublisher(EventPublisher):
                                               value=value,
                                               key=encoded_key)
 
+
+
         
