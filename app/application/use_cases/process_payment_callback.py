@@ -1,7 +1,7 @@
 from app.application.dtos.payment_dtos import PaymentCallbackDto
 from app.application.dtos.outbox_message import OutboxMessageDto, EventType
 from app.application.ports.uow_factory import UnitOfWorkFactory
-from app.application.exceptions import OrderNotFoundException, PaymentMismatchException, PaymentAmountMismatchException, PaymentStatusConflictException, InvalidPaymentStatusException
+from app.application.exceptions import OrderNotFoundException, PaymentMismatchException, PaymentAmountMismatchException, PaymentStatusConflictException, InvalidPaymentStatusException, PaymentNotReadyException
 from app.domain.enums.payment_status import PaymentStatus
 from app.domain.enums.order_status import OrderStatus
 
@@ -41,16 +41,24 @@ class ProcessPaymentCallbackUseCase:
             order.status,
             order.payment_status,
         )
-
+            
+            if order.payment_id is None:
+                logger.warning(
+                    "Payment callback arrived before payment_id was saved: "
+                    "order_id=%s, callback_payment_id=%s",
+                    order.id,
+                    callback.payment_id,
+                )
+                raise PaymentNotReadyException()
 
             if order.payment_id != callback.payment_id:
                 logger.error(
-                "Payment ID mismatch: order_id=%s, stored_payment_id=%s, "
-                "callback_payment_id=%s",
-                order.id,
-                order.payment_id,
-                callback.payment_id,
-            )
+                    "Payment ID mismatch: order_id=%s, stored_payment_id=%s, "
+                    "callback_payment_id=%s",
+                    order.id,
+                    order.payment_id,
+                    callback.payment_id,
+                )
                 raise PaymentMismatchException()
 
             expected_amount = order.unit_price * order.quantity

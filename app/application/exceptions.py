@@ -63,3 +63,13 @@ class InvalidEventTypeException(Exception):
 class InvalidEventPayloadException(Exception):
     def __init__(self):
         self.detail = "Invalid order_id in shipping event"
+
+        super().__init__(self.detail)
+        
+
+class PaymentNotReadyException():
+    def __init__(self):
+        self.detail = "Payment is not ready yet"
+
+        super().__init__(self.detail)
+            
