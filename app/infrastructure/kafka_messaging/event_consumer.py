@@ -5,7 +5,7 @@ import logging
 
 from aiokafka import AIOKafkaConsumer
 
-logger = logging()
+logger = logging.getLogger(__name__)
 
 EventHandler = Callable[[dict[str, Any], str, int, int], Awaitable[None]]
 
