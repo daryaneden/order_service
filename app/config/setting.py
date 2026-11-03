@@ -17,6 +17,10 @@ class Settings(BaseSettings):
 
     PAYMENT_CALLBACK_URL: str
 
+    KAFKA_BOOTSTRAP_SERVERS: str
+    KAFKA_ORDER_TOPIC: str
+    KAFKA_SHIPMENT_TOPIC: str
+
 
     @property
     def db_url(self):

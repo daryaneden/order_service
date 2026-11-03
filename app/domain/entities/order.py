@@ -5,7 +5,7 @@ from decimal import Decimal
 
 from app.domain.enums.order_status import OrderStatus
 from app.domain.enums.payment_status import PaymentStatus
-from app.domain.exceptions.order_exceptions import InvalidOrderQuantityError, InvalidOrderPriceError
+from app.domain.exceptions.order_exceptions import InvalidOrderQuantityError, InvalidOrderPriceError, InvalidOrderStatusTransitionError
 
 @dataclass
 class Order:
@@ -27,3 +27,23 @@ class Order:
 
         if self.unit_price < 0:
             raise InvalidOrderPriceError()
+
+    def ship(self) -> None:
+        if self.status == OrderStatus.SHIPPED:
+            return
+    
+        if self.status != OrderStatus.PAID:
+            raise InvalidOrderStatusTransitionError(self.status, OrderStatus.SHIPPED)
+
+        self.status = OrderStatus.SHIPPED
+
+    def cancel(self) -> None:
+
+        if self.status == OrderStatus.CANCELLED:
+            return
+
+        if self.status == OrderStatus.SHIPPED:
+            raise InvalidOrderStatusTransitionError(self.status, OrderStatus.CANCELLED)
+
+        self.status = OrderStatus.CANCELLED
+

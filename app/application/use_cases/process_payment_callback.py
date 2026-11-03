@@ -1,4 +1,5 @@
 from app.application.dtos.payment_dtos import PaymentCallbackDto
+from app.application.dtos.outbox_message import OutboxMessageDto, EventType
 from app.application.ports.uow_factory import UnitOfWorkFactory
 from app.application.exceptions import OrderNotFoundException, PaymentMismatchException, PaymentAmountMismatchException, PaymentStatusConflictException, InvalidPaymentStatusException
 from app.domain.enums.payment_status import PaymentStatus
@@ -11,9 +12,7 @@ class ProcessPaymentCallbackUseCase:
 
     async def __call__(self, callback: PaymentCallbackDto):
         async with self.uow_factory() as uow:
-            order = await uow.order_repository.get_order_by_id(
-                callback.order_id
-            )
+            order = await uow.order_repository.get_order_by_id(callback.order_id)
 
             if order is None:
                 raise OrderNotFoundException()
@@ -52,6 +51,15 @@ class ProcessPaymentCallbackUseCase:
             if callback.status == PaymentStatus.SUCCEEDED:
                 order.payment_status = PaymentStatus.SUCCEEDED
                 order.status = OrderStatus.PAID
+
+                event = OutboxMessageDto(event_type=EventType.ORDER_PAID,
+                                         payload={"event_type": EventType.ORDER_PAID,
+                                                  "order_id": str(order.id),
+                                                  "item_id": str(order.item_id),
+                                                  "quantity": int(order.quantity),
+                                                  "idempotency_key": str(order.idempotency_key)})
+
+                await uow.outbox_repository.save(event)
 
             elif callback.status == PaymentStatus.FAILED:
                 order.payment_status = PaymentStatus.FAILED

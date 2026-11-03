@@ -14,6 +14,9 @@ from app.infrastructure.database.repositories.sqlalchemy_order_repository import
 from app.infrastructure.uow.sqlalchemy_uow import SqlAlchemyUnitOfWork
 from app.infrastructure.uow.sqlalchemy_uow_factory import SqlAlchemyUnitOfWorkFactory
 from app.application.use_cases.process_payment_callback import ProcessPaymentCallbackUseCase
+from app.application.use_cases.process_outbox import ProcessOutboxUseCase
+from app.application.ports.messaging.event_publisher import EventPublisher
+from app.application.use_cases.process_shipping_event import ProcessShippingEventUseCase
 from app.config.setting import settings
 
 def get_catalog_client(client: Annotated[AsyncClient, Depends(create_capashino_client)]) -> CatalogClient:
@@ -52,3 +55,12 @@ def get_get_order_by_id_use_case(order_repository: Annotated[SqlAlchemyOrderRepo
 
 def get_process_payment_callback_use_case(uow_factory: Annotated[SqlAlchemyUnitOfWorkFactory, Depends(get_uow_factory)]) -> ProcessPaymentCallbackUseCase:
     return ProcessPaymentCallbackUseCase(uow_factory=uow_factory)
+
+#DI for lifespan
+
+def build_process_outbox_use_case_for_lifespan(publisher: EventPublisher) -> ProcessOutboxUseCase:
+ return ProcessOutboxUseCase(uow_factory=get_uow_factory(),
+                             event_publisher=publisher)
+
+def build_process_shipping_event_use_case_for_lifespan() -> ProcessShippingEventUseCase:
+    return ProcessShippingEventUseCase(uow_factory=get_uow_factory())
