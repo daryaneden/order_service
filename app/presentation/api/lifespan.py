@@ -17,7 +17,8 @@ async def lifespan(app: FastAPI):
     await publisher.start()
 
     outbox_use_case = build_process_outbox_use_case_for_lifespan(publisher)
-    outbox_task = asyncio.create_task(outbox_worker(outbox_use_case(topic=settings.KAFKA_ORDER_TOPIC)))
+    outbox_task = asyncio.create_task(outbox_worker(outbox_use_case,
+                                                    settings.KAFKA_ORDER_TOPIC))
 
     consumer = KafkaEventConsumer(topic=settings.KAFKA_SHIPMENT_TOPIC,
                                   bootstrap_servers=settings.KAFKA_BOOTSTRAP_SERVERS,
