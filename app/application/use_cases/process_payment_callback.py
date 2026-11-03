@@ -53,7 +53,7 @@ class ProcessPaymentCallbackUseCase:
                 order.status = OrderStatus.PAID
 
                 event = OutboxMessageDto(event_type=EventType.ORDER_PAID,
-                                         payload={"event_type": EventType.ORDER_PAID,
+                                         payload={"event_type": EventType.ORDER_PAID.value,
                                                   "order_id": str(order.id),
                                                   "item_id": str(order.item_id),
                                                   "quantity": int(order.quantity),
