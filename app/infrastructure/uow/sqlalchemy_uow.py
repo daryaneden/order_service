@@ -1,12 +1,16 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.ports.order_repository import OrderRepository
+from app.application.ports.outbox_repository import OutboxRepository
+from app.application.ports.inbox_repository import InboxRepository
 from app.application.ports.uow import UnitOfWork
 
 class SqlAlchemyUnitOfWork(UnitOfWork):
 
     def __init__(self, session: AsyncSession, 
-                 order_repository: OrderRepository):
+                 order_repository: OrderRepository,
+                 outbox_repository: OutboxRepository,
+                 inbox_repository: InboxRepository):
         
         self.session = session
         self.order_repository = order_repository

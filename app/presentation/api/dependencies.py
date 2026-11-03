@@ -11,6 +11,8 @@ from app.infrastructure.capashino_clients.payment_client import PaymentClient
 from app.infrastructure.http.capashino_client import create_capashino_client
 from app.infrastructure.database.db import get_db_session, AsyncSessionFactory
 from app.infrastructure.database.repositories.sqlalchemy_order_repository import SqlAlchemyOrderRepository
+from app.infrastructure.database.repositories.sqlalchemy_inbox_repository import SqlAlchemyInboxRepository
+from app.infrastructure.database.repositories.sqlalchemy_outbox_repository import SqlAlchemyOutboxRepository
 from app.infrastructure.uow.sqlalchemy_uow import SqlAlchemyUnitOfWork
 from app.infrastructure.uow.sqlalchemy_uow_factory import SqlAlchemyUnitOfWorkFactory
 from app.application.use_cases.process_payment_callback import ProcessPaymentCallbackUseCase
@@ -31,9 +33,13 @@ def get_order_repository(session: Annotated[AsyncSession, Depends(get_db_session
 def build_uow(session: Annotated[AsyncSession, Depends(get_db_session)]) -> SqlAlchemyUnitOfWork:
 
     order_repository = SqlAlchemyOrderRepository(session)
+    outbox_repository=SqlAlchemyOutboxRepository(session)
+    inbox_repository=SqlAlchemyInboxRepository(session)
 
     return SqlAlchemyUnitOfWork(session=session,
-        order_repository=order_repository)
+        order_repository=order_repository,
+        outbox_repository=outbox_repository,
+        inbox_repository=inbox_repository)
 
 def get_uow_factory() -> SqlAlchemyUnitOfWorkFactory:
     return SqlAlchemyUnitOfWorkFactory(session_factory=AsyncSessionFactory,
