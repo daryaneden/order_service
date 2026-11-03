@@ -1,5 +1,6 @@
 from decimal import Decimal
 from uuid import UUID
+from datetime import datetime
 
 from pydantic import BaseModel, ConfigDict
 
@@ -14,3 +15,4 @@ class PaymentCallbackRequest(BaseModel):
     status: PaymentStatus
     amount: Decimal
     error_message: str | None = None
+    processed_at: datetime
