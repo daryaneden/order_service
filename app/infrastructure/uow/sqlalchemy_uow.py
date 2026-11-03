@@ -14,6 +14,8 @@ class SqlAlchemyUnitOfWork(UnitOfWork):
         
         self.session = session
         self.order_repository = order_repository
+        self.outbox_repository = outbox_repository
+        self.inbox_repository = inbox_repository
 
     async def __aenter__(self):
 
