@@ -60,8 +60,7 @@ def get_process_payment_callback_use_case(uow_factory: Annotated[SqlAlchemyUnitO
 
 def build_process_outbox_use_case_for_lifespan(publisher: EventPublisher, topic=settings.KAFKA_ORDER_TOPIC) -> ProcessOutboxUseCase:
  return ProcessOutboxUseCase(uow_factory=get_uow_factory(),
-                             event_publisher=publisher,
-                             topic=topic)
+                             event_publisher=publisher)
 
 def build_process_shipping_event_use_case_for_lifespan() -> ProcessShippingEventUseCase:
     return ProcessShippingEventUseCase(uow_factory=get_uow_factory())
