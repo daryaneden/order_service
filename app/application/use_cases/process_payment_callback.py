@@ -5,19 +5,52 @@ from app.application.exceptions import OrderNotFoundException, PaymentMismatchEx
 from app.domain.enums.payment_status import PaymentStatus
 from app.domain.enums.order_status import OrderStatus
 
+import logging
+
+logger = logging.getLogger(__name__)
+
 class ProcessPaymentCallbackUseCase:
 
     def __init__(self, uow_factory: UnitOfWorkFactory):
         self.uow_factory = uow_factory
 
     async def __call__(self, callback: PaymentCallbackDto):
+        logger.info(
+                "Received payment callback: order_id=%s, payment_id=%s, status=%s, amount=%s",
+                callback.order_id,
+                callback.payment_id,
+                callback.status,
+                callback.amount,
+            )
         async with self.uow_factory() as uow:
             order = await uow.order_repository.get_order_by_id(callback.order_id)
 
             if order is None:
+                logger.warning(
+                "Payment callback references unknown order: order_id=%s",
+                callback.order_id,
+            )
                 raise OrderNotFoundException()
 
+            logger.info(
+            "Found order: order_id=%s, stored_payment_id=%s, "
+            "callback_payment_id=%s, order_status=%s, payment_status=%s",
+            order.id,
+            order.payment_id,
+            callback.payment_id,
+            order.status,
+            order.payment_status,
+        )
+
+
             if order.payment_id != callback.payment_id:
+                logger.error(
+                "Payment ID mismatch: order_id=%s, stored_payment_id=%s, "
+                "callback_payment_id=%s",
+                order.id,
+                order.payment_id,
+                callback.payment_id,
+            )
                 raise PaymentMismatchException()
 
             expected_amount = order.unit_price * order.quantity
