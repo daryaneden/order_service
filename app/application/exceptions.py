@@ -67,7 +67,7 @@ class InvalidEventPayloadException(Exception):
         super().__init__(self.detail)
         
 
-class PaymentNotReadyException():
+class PaymentNotReadyException(Exception):
     def __init__(self):
         self.detail = "Payment is not ready yet"
 
