@@ -17,4 +17,4 @@ async def outbox_worker(use_case: ProcessOutboxUseCase, topic: str) -> None:
         except Exception:
             logger.exception('Outbox processing failed')
 
-        await asyncio.sleep(60)
+        await asyncio.sleep(3)
