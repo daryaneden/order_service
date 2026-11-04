@@ -1,11 +1,13 @@
 from app.application.dtos.payment_dtos import PaymentCallbackDto
 from app.application.dtos.outbox_message import OutboxMessageDto, EventType
+from app.application.dtos.pending_payment_callback_dto import PendingPaymentCallbackDto
 from app.application.ports.uow_factory import UnitOfWorkFactory
 from app.application.exceptions import OrderNotFoundException, PaymentMismatchException, PaymentAmountMismatchException, PaymentStatusConflictException, InvalidPaymentStatusException, PaymentNotReadyException
 from app.domain.enums.payment_status import PaymentStatus
 from app.domain.enums.order_status import OrderStatus
 
 import logging
+from uuid import UUID, uuid4
 
 logger = logging.getLogger(__name__)
 
@@ -23,7 +25,7 @@ class ProcessPaymentCallbackUseCase:
                 callback.amount,
             )
         async with self.uow_factory() as uow:
-            order = await uow.order_repository.get_order_by_id(callback.order_id)
+            order = await uow.order_repository.get_order_by_id_for_update(callback.order_id)
 
             if order is None:
                 logger.warning(
@@ -49,7 +51,16 @@ class ProcessPaymentCallbackUseCase:
                     order.id,
                     callback.payment_id,
                 )
-                raise PaymentNotReadyException()
+                
+                pending_callback = PendingPaymentCallbackDto(id=uuid4(),
+                                                            order_id=callback.order_id,
+                                                            payment_id=callback.payment_id,
+                                                            status=callback.status,
+                                                            amount=callback.amount)
+            
+                await uow.pending_payment_callback_repository.save(pending_callback)
+
+                return
 
             if order.payment_id != callback.payment_id:
                 logger.error(

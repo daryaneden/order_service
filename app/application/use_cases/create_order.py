@@ -3,11 +3,13 @@ from uuid import UUID, uuid4
 from app.application.ports.uow_factory import UnitOfWorkFactory
 from app.application.dtos.order import OrderDto
 from app.application.dtos.payment_dtos import CreatePaymentDto
+from app.application.dtos.outbox_message import OutboxMessageDto, EventType
 from app.application.ports.catalog_port import CatalogPort
 from app.application.ports.payment_port import PaymentPort
-from app.application.exceptions import InsufficientQuantityError, ItemOutOfStockError, PaymentCreationException, PaymentCreationUnknownException
+from app.application.exceptions import InsufficientQuantityError, ItemOutOfStockError, PaymentCreationException, PaymentCreationUnknownException, PaymentMismatchException, PaymentAmountMismatchException, InvalidPaymentStatusException, PaymentStatusConflictException
 from app.domain.entities.order import Order
 from app.domain.enums.order_status import OrderStatus
+from app.domain.enums.payment_status import PaymentStatus
 
 import logging
 
@@ -98,8 +100,86 @@ class CreateOrderUseCase():
             raise
 
         async with self.uow_factory() as uow:
+            order = await uow.order_repository.get_order_by_id_for_update(order.id)
+            if order is None:
+                raise OrderNotFoundException()
+            
             order.payment_id = payment.id
             order.payment_status = payment.status
+
+            pending_callbacks = (await uow.pending_payment_callback_repository.get_all_by_order_id(order.id))
+             # 4. Обрабатываем каждый отложенный callback.
+            for callback in pending_callbacks:
+                if callback.payment_id != order.payment_id:
+                    raise PaymentMismatchException()
+
+                expected_amount = order.unit_price * order.quantity
+
+                if callback.amount != expected_amount:
+                    raise PaymentAmountMismatchException()
+
+                # Повторный callback с тем же уже применённым
+                # терминальным статусом не должен создавать событие повторно.
+                if (
+                    order.payment_status == PaymentStatus.SUCCEEDED
+                    and order.status == OrderStatus.PAID
+                    and callback.status == PaymentStatus.SUCCEEDED
+                ):
+                    await uow.pending_payment_callback_repository.delete(
+                        callback.id
+                    )
+                    continue
+
+                if (
+                    order.payment_status == PaymentStatus.FAILED
+                    and order.status == OrderStatus.CANCELLED
+                    and callback.status == PaymentStatus.FAILED
+                ):
+                    await uow.pending_payment_callback_repository.delete(
+                        callback.id
+                    )
+                    continue
+
+                # Если платёж уже завершился другим терминальным статусом,
+            # противоречащий callback обрабатывать нельзя.
+                if order.payment_status in (
+                    PaymentStatus.SUCCEEDED,
+                    PaymentStatus.FAILED,
+                ):
+                    raise PaymentStatusConflictException()
+
+                if order.payment_status != PaymentStatus.PENDING:
+                    raise PaymentStatusConflictException()
+
+                if callback.status == PaymentStatus.SUCCEEDED:
+                    order.payment_status = PaymentStatus.SUCCEEDED
+                    order.status = OrderStatus.PAID
+
+                    event = OutboxMessageDto(
+                        event_type=EventType.ORDER_PAID,
+                        payload={
+                            "event_type": EventType.ORDER_PAID.value,
+                            "order_id": str(order.id),
+                            "item_id": str(order.item_id),
+                            "quantity": int(order.quantity),
+                            "idempotency_key": str(order.idempotency_key),
+                        },
+                    )
+
+                elif callback.status == PaymentStatus.FAILED:
+                    order.payment_status = PaymentStatus.FAILED
+                    order.status = OrderStatus.CANCELLED
+
+                else:
+                    raise InvalidPaymentStatusException()
+
+                await uow.pending_payment_callback_repository.delete(
+                callback.id
+            )
+
+
+                await uow.outbox_repository.save(event)
+
             await uow.order_repository.update_order(order)
 
         return order

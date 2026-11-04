@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 
 from app.presentation.api.schemas.payment import PaymentCallbackRequest
 from app.presentation.api.mappers.payment_mapper import to_payment_callback_dto
@@ -14,10 +14,8 @@ router = APIRouter(prefix="/api/orders", tags=["Orders"])
 async def payment_callback(callback_data: PaymentCallbackRequest,
     use_case: Annotated[ProcessPaymentCallbackUseCase, Depends(get_process_payment_callback_use_case)]):
     
-    try:
-        await use_case(callback_data)
-    except PaymentNotReadyException as exc:
-        raise HTTPException(
-            status_code=503,
-            detail="Payment is not ready yet",
-        ) from exc
+    callback = to_payment_callback_dto(callback_data)
+
+    await use_case(callback)
+
+    return {"message": "Payment callback processed"}

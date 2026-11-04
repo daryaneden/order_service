@@ -21,3 +21,7 @@ class OrderRepository(ABC):
     @abstractmethod
     async def update_order(self, order: Order) -> Order:
         pass
+
+    @abstractmethod
+    async def get_order_by_id_for_update(self, order_id: UUID) -> Order | None:
+         pass
