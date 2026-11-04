@@ -28,12 +28,22 @@ class KafkaEventConsumer:
     async def consume(self, handler: EventHandler) -> None:
         async for message in self.consumer:
             try:
-                raw_message = message.value
-                payload = json.loads(raw_message)
-                await handler(payload,
-                            message.topic,
-                            message.partition,
-                            message.offset)
+                payload = json.loads(message.value)
+
+                logger.info(
+                    "Kafka message received: topic=%s, partition=%s, offset=%s, payload=%s",
+                    message.topic,
+                    message.partition,
+                    message.offset,
+                    payload,
+                )
+
+                await handler(
+                    payload,
+                    message.topic,
+                    message.partition,
+                    message.offset,
+                )
 
                 await self.consumer.commit()
 
@@ -42,5 +52,6 @@ class KafkaEventConsumer:
                     "Failed to process Kafka message: topic=%s, partition=%s, offset=%s",
                     message.topic,
                     message.partition,
-                    message.offset)
+                    message.offset,
+                )
                 raise
