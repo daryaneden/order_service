@@ -29,7 +29,7 @@ class SqlAlchemyOrderRepository(OrderRepository):
         
         return self._to_entity(order_model)
 
-    async def get_order_by_id(self, order_id: str) -> Order | None:
+    async def get_order_by_id(self, order_id: UUID) -> Order | None:
         query = select(OrderModel).where(OrderModel.id == order_id)
 
         result = await self.session.execute(query)

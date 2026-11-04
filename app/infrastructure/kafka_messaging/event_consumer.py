@@ -5,6 +5,8 @@ import logging
 
 from aiokafka import AIOKafkaConsumer
 
+from app.application.exceptions import OrderNotFoundException
+
 logger = logging.getLogger(__name__)
 
 EventHandler = Callable[[dict[str, Any], str, int, int], Awaitable[None]]
@@ -43,6 +45,19 @@ class KafkaEventConsumer:
                     message.topic,
                     message.partition,
                     message.offset,
+                )
+
+                await self.consumer.commit()
+
+            except OrderNotFoundException as error:
+                logger.warning(
+                    "Order not found while processing Kafka message. "
+                    "Message will be skipped: topic=%s, partition=%s, "
+                    "offset=%s, error=%s",
+                    message.topic,
+                    message.partition,
+                    message.offset,
+                    error,
                 )
 
                 await self.consumer.commit()

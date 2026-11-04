@@ -9,7 +9,7 @@ class GetOrderUseCase():
     def __init__(self, order_repository: OrderRepository):
         self.repository = order_repository
 
-    async def __call__(self, order_id: str) -> Order:
+    async def __call__(self, order_id: UUID) -> Order:
         order = await self.repository.get_order_by_id(order_id)
 
         if order is None:
