@@ -7,12 +7,12 @@ from fastapi.responses import JSONResponse
 from app.presentation.api.routers.create_order import router as create_order
 from app.presentation.api.routers.get_order import router as get_order_router
 from app.presentation.api.routers.payment_callback import router as payment_router
-# from app.presentation.api.lifespan import lifespan
+from app.presentation.api.lifespan import lifespan
 
 logger = logging.getLogger(__name__)
 
-# app = FastAPI(lifespan=lifespan)
-app = FastAPI()
+app = FastAPI(lifespan=lifespan)
+
 
 app.include_router(create_order)
 app.include_router(get_order_router)
