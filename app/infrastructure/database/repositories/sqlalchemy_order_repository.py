@@ -20,7 +20,9 @@ class SqlAlchemyOrderRepository(OrderRepository):
                 quantity=order.quantity,
                 unit_price=order.unit_price,
                 status=order.status,
-                idempotency_key=order.idempotency_key)
+                idempotency_key=order.idempotency_key,
+                payment_id=order.payment_id,
+                payment_status=order.payment_status)
         
         self.session.add(order_model)
         await self.session.flush()
@@ -88,6 +90,8 @@ class SqlAlchemyOrderRepository(OrderRepository):
             quantity=order_model.quantity,
             unit_price=order_model.unit_price,
             status=order_model.status,
+            payment_id=order_model.payment_id,
+            payment_status=order_model.payment_status,
             idempotency_key=order_model.idempotency_key,
             created_at=order_model.created_at,
             updated_at=order_model.updated_at)
