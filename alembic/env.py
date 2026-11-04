@@ -9,6 +9,7 @@ from app.infrastructure.database.db import Base
 from app.infrastructure.database.models.order import OrderModel
 from app.infrastructure.database.models.inbox_event import InboxEventModel
 from app.infrastructure.database.models.outbox_event import OutboxEventModel
+from app.infrastructure.database.models.pending_payment_callback import PendingPaymentCallbackModel
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

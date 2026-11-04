@@ -10,13 +10,6 @@ class PendingPaymentCallbackRepository(ABC):
         pass
 
     @abstractmethod
-    async def get_by_order_id(
-        self,
-        order_id: UUID,
-    ) -> PendingPaymentCallbackDto | None:
-        pass
-
-    @abstractmethod
     async def delete(self, callback_id: UUID) -> None:
         pass
 
