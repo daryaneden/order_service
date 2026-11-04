@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 EventHandler = Callable[[dict[str, Any], str, int, int], Awaitable[None]]
 
 class KafkaEventConsumer:
-
+ 
     def __init__(self, topic: str, bootstrap_servers: str, group_id: str):
         
         self.consumer = AIOKafkaConsumer(topic,
