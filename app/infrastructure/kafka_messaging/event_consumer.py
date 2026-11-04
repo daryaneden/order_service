@@ -57,7 +57,7 @@ class KafkaEventConsumer:
                     message.topic,
                     message.partition,
                     message.offset, 
-                    error,
+                    error, 
                 )
 
                 await self.consumer.commit()
