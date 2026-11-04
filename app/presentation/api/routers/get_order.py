@@ -13,7 +13,7 @@ router = APIRouter(prefix="/api/orders", tags=["Orders"])
 async def get_order(order_id: UUID,
     use_case: Annotated[GetOrderUseCase, Depends(get_get_order_by_id_use_case)]) -> OrderResponse:
     try:
-        use_case(order_id)
+        await use_case(order_id)
     except OrderNotFoundException as exc:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
                     detail=exc.detail) from exc
