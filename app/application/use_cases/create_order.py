@@ -327,7 +327,6 @@ class CreateOrderUseCase:
 
             # Применяем статус, который вернул Payment Service.
             await self._apply_payment_status(
-                uow=uow,
                 order=locked_order,
                 payment_status=payment.status,
             )
