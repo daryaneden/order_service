@@ -56,7 +56,7 @@ class KafkaEventConsumer:
                     "offset=%s, error=%s",
                     message.topic,
                     message.partition,
-                    message.offset,
+                    message.offset, 
                     error,
                 )
 
