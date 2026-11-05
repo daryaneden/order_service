@@ -3,6 +3,7 @@ from uuid import UUID
 
 from app.application.dtos.pending_payment_callback_dto import PendingPaymentCallbackDto
 
+
 class PendingPaymentCallbackRepository(ABC):
 
     @abstractmethod

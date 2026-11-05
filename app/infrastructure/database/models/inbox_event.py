@@ -1,9 +1,10 @@
 from uuid import UUID, uuid4
 
+from sqlalchemy import UniqueConstraint
+from sqlalchemy.orm import Mapped, mapped_column
+
 from app.infrastructure.database.db import Base
 
-from sqlalchemy.orm import Mapped, mapped_column
-from sqlalchemy import UniqueConstraint
 
 class InboxEventModel(Base):
     __tablename__ = "inbox_events"

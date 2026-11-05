@@ -1,10 +1,11 @@
-from uuid import UUID
 from decimal import Decimal
+from uuid import UUID
 
 from httpx import AsyncClient
 
-from app.domain.entities.catalog_item import CatalogItem
 from app.application.ports.catalog_port import CatalogPort
+from app.domain.entities.catalog_item import CatalogItem
+
 
 class CatalogClient(CatalogPort):
 

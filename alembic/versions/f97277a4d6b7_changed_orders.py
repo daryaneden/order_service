@@ -5,17 +5,17 @@ Revises: db42e1465336
 Create Date: 2026-10-31 15:31:06.416475
 
 """
-from typing import Sequence, Union
+from collections.abc import Sequence
 
-from alembic import op
 import sqlalchemy as sa
 
+from alembic import op
 
 # revision identifiers, used by Alembic.
 revision: str = 'f97277a4d6b7'
-down_revision: Union[str, Sequence[str], None] = 'db42e1465336'
-branch_labels: Union[str, Sequence[str], None] = None
-depends_on: Union[str, Sequence[str], None] = None
+down_revision: str | Sequence[str] | None = 'db42e1465336'
+branch_labels: str | Sequence[str] | None = None
+depends_on: str | Sequence[str] | None = None
 
 payment_status_enum = sa.Enum(
     'PENDING',

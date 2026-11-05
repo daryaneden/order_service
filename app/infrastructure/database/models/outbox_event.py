@@ -6,6 +6,7 @@ from sqlalchemy.orm import Mapped, mapped_column
 
 from app.infrastructure.database.db import Base
 
+
 class OutboxEventModel(Base):
     __tablename__ = 'outbox_events'
 

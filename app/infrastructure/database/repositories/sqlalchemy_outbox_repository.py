@@ -5,7 +5,7 @@ from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.dtos.outbox_message import OutboxMessageDto, PendingOutboxMessage
-from app.application.ports.outbox_repository import OutboxRepository
+from app.application.ports.repositories.outbox_repository import OutboxRepository
 from app.infrastructure.database.models.outbox_event import OutboxEventModel
 
 

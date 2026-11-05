@@ -1,5 +1,6 @@
 from app.domain.enums.order_status import OrderStatus
 
+
 class InvalidOrderQuantityError(Exception):
     def __init__(self):
         self.detail = "Order quantity is not positive"

@@ -1,12 +1,13 @@
 from dataclasses import dataclass
-from uuid import UUID
 from enum import StrEnum
 from typing import Any
+from uuid import UUID
+
 
 class EventType(StrEnum):
     ORDER_PAID = "order.paid"
     ORDER_SHIPPED = "order.shipped"
-    ORDER_CANCELLED = "order.cancelled"  
+    ORDER_CANCELLED = "order.cancelled"
 
 @dataclass
 class OutboxMessageDto:

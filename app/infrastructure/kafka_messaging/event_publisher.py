@@ -5,6 +5,7 @@ from aiokafka import AIOKafkaProducer
 
 from app.application.ports.messaging.event_publisher import EventPublisher
 
+
 class KafkaEventPublisher(EventPublisher):
 
     def __init__(self, bootstrap_servers: str):
@@ -17,7 +18,7 @@ class KafkaEventPublisher(EventPublisher):
     async def stop(self) -> None:
         await self.producer.stop()
 
-    
+
     async def publish(self, topic: str, message: dict[str, Any], key: str | None = None) -> None:
         value = json.dumps(message).encode("utf-8")
         encoded_key = key.encode("utf-8") if key is not None else None
@@ -28,4 +29,4 @@ class KafkaEventPublisher(EventPublisher):
 
 
 
-        
+

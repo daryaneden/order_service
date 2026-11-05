@@ -1,13 +1,17 @@
+import asyncio
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
-import asyncio
 
-from app.infrastructure.kafka_messaging.event_publisher import KafkaEventPublisher
-from app.infrastructure.kafka_messaging.event_consumer import KafkaEventConsumer
-from app.infrastructure.outbox.outbox_worker import outbox_worker
-from app.presentation.api.dependencies import build_process_outbox_use_case_for_lifespan, build_process_shipping_event_use_case_for_lifespan
 from app.config.setting import settings
+from app.infrastructure.kafka_messaging.event_consumer import KafkaEventConsumer
+from app.infrastructure.kafka_messaging.event_publisher import KafkaEventPublisher
+from app.infrastructure.outbox.outbox_worker import outbox_worker
+from app.presentation.api.dependencies import (
+    build_process_outbox_use_case_for_lifespan,
+    build_process_shipping_event_use_case_for_lifespan,
+)
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):

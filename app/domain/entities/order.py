@@ -1,11 +1,16 @@
 from dataclasses import dataclass
-from uuid import UUID
 from datetime import datetime
 from decimal import Decimal
+from uuid import UUID
 
 from app.domain.enums.order_status import OrderStatus
 from app.domain.enums.payment_status import PaymentStatus
-from app.domain.exceptions.order_exceptions import InvalidOrderQuantityError, InvalidOrderPriceError, InvalidOrderStatusTransitionError
+from app.domain.exceptions import (
+    InvalidOrderPriceError,
+    InvalidOrderQuantityError,
+    InvalidOrderStatusTransitionError,
+)
+
 
 @dataclass
 class Order:
@@ -31,7 +36,7 @@ class Order:
     def ship(self) -> None:
         if self.status == OrderStatus.SHIPPED:
             return
-    
+
         if self.status != OrderStatus.PAID:
             raise InvalidOrderStatusTransitionError(self.status, OrderStatus.SHIPPED)
 

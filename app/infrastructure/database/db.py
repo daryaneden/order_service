@@ -1,9 +1,8 @@
+from collections.abc import AsyncIterator
 from typing import Any
 
-from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.orm import DeclarativeBase, declared_attr
-from sqlalchemy.ext.asyncio import AsyncSession
-from collections.abc import AsyncIterator
 
 from app.config.setting import Settings
 

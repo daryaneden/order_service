@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from app.application.ports.uow import UnitOfWork
+from app.application.ports.uow.uow import UnitOfWork
 
 
 class UnitOfWorkFactory(ABC):

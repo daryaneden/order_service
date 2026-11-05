@@ -3,7 +3,7 @@ from decimal import Decimal
 from uuid import UUID
 
 
-@dataclass(frozen=True)
+@dataclass
 class CatalogItemDTO:
     id: UUID
     name: str

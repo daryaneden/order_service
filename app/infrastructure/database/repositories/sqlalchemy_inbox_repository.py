@@ -1,7 +1,7 @@
-from sqlalchemy import select, exists
+from sqlalchemy import exists, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.application.ports.inbox_repository import InboxRepository
+from app.application.ports.repositories.inbox_repository import InboxRepository
 from app.infrastructure.database.models.inbox_event import InboxEventModel
 
 

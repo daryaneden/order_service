@@ -4,6 +4,7 @@ from uuid import UUID
 
 from app.domain.enums.payment_status import PaymentStatus
 
+
 @dataclass
 class PendingPaymentCallbackDto:
     id: UUID

@@ -1,7 +1,5 @@
 from abc import ABC, abstractmethod
-from uuid import UUID
 
-from app.application.dtos.outbox_message import OutboxMessageDto, PendingOutboxMessage
 
 class InboxRepository(ABC):
 

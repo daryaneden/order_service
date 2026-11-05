@@ -3,9 +3,10 @@ from uuid import UUID
 from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.application.ports.order_repository import OrderRepository
-from app.infrastructure.database.models.order import OrderModel
+from app.application.ports.repositories.order_repository import OrderRepository
 from app.domain.entities.order import Order
+from app.infrastructure.database.models.order import OrderModel
+
 
 class SqlAlchemyOrderRepository(OrderRepository):
 
@@ -13,8 +14,7 @@ class SqlAlchemyOrderRepository(OrderRepository):
         self.session = session
 
     async def create_order(self, order: Order) -> Order:
-        order_model = OrderModel(
-                id=order.id,
+        order_model = OrderModel(id=order.id,
                 user_id=order.user_id,
                 item_id=order.item_id,
                 quantity=order.quantity,
@@ -23,10 +23,10 @@ class SqlAlchemyOrderRepository(OrderRepository):
                 idempotency_key=order.idempotency_key,
                 payment_id=order.payment_id,
                 payment_status=order.payment_status)
-        
+
         self.session.add(order_model)
         await self.session.flush()
-        
+
         return self._to_entity(order_model)
 
     async def get_order_by_id(self, order_id: UUID) -> Order | None:
@@ -42,11 +42,7 @@ class SqlAlchemyOrderRepository(OrderRepository):
 
     async def get_order_by_id_for_update(self, order_id: UUID) -> Order | None:
 
-        query = (
-            select(OrderModel)
-            .where(OrderModel.id == order_id)
-            .with_for_update()
-        )
+        query = (select(OrderModel).where(OrderModel.id == order_id).with_for_update())
 
         result = await self.session.execute(query)
         order_model = result.scalar_one_or_none()
@@ -57,8 +53,7 @@ class SqlAlchemyOrderRepository(OrderRepository):
         return self._to_entity(order_model)
 
     async def get_by_idempotency_key(self, idempotency_key: str) -> Order | None:
-        result = await self.session.execute(
-        select(OrderModel).where(OrderModel.idempotency_key == idempotency_key))
+        result = await self.session.execute(select(OrderModel).where(OrderModel.idempotency_key == idempotency_key))
         order_model = result.scalar_one_or_none()
 
         if order_model is None:
@@ -66,10 +61,8 @@ class SqlAlchemyOrderRepository(OrderRepository):
 
         return self._to_entity(order_model)
 
-    
     async def update_order(self, order: Order) -> Order:
-        statement = (update(OrderModel).where(OrderModel.id == order.id)
-            .values(status=order.status,
+        statement = (update(OrderModel).where(OrderModel.id == order.id).values(status=order.status,
                     payment_id=order.payment_id,
                     payment_status=order.payment_status).returning(OrderModel))
 
@@ -83,8 +76,7 @@ class SqlAlchemyOrderRepository(OrderRepository):
         return self._to_entity(model)
 
     def _to_entity(self, order_model: OrderModel) -> Order:
-        return Order(
-            id=order_model.id,
+        return Order(id=order_model.id,
             user_id=order_model.user_id,
             item_id=order_model.item_id,
             quantity=order_model.quantity,

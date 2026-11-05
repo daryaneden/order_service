@@ -1,10 +1,12 @@
 from abc import ABC, abstractmethod
 
+from app.application.ports.repositories.inbox_repository import InboxRepository
+from app.application.ports.repositories.order_repository import OrderRepository
+from app.application.ports.repositories.outbox_repository import OutboxRepository
+from app.application.ports.repositories.pending_payment_callback_repository import (
+    PendingPaymentCallbackRepository,
+)
 
-from app.application.ports.order_repository import OrderRepository
-from app.application.ports.outbox_repository import OutboxRepository
-from app.application.ports.inbox_repository import InboxRepository
-from app.application.ports.pending_payment_callback_repository import PendingPaymentCallbackRepository
 
 class UnitOfWork(ABC):
 

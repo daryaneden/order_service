@@ -1,5 +1,6 @@
 from uuid import UUID
 
+
 class ItemOutOfStockError(Exception):
     def __init__(self):
         self.detail = "Item is out of stock"
@@ -65,11 +66,11 @@ class InvalidEventPayloadException(Exception):
         self.detail = "Invalid order_id in shipping event"
 
         super().__init__(self.detail)
-        
+
 
 class PaymentNotReadyException(Exception):
     def __init__(self):
         self.detail = "Payment is not ready yet"
 
         super().__init__(self.detail)
-            
+

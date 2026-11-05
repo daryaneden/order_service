@@ -1,5 +1,5 @@
-from app.presentation.api.schemas.order_response import OrderResponse
 from app.domain.entities.order import Order
+from app.presentation.api.schemas.order_response import OrderResponse
 
 
 def to_order_response(order: Order) -> OrderResponse:

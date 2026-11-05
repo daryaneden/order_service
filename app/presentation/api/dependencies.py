@@ -4,24 +4,35 @@ from fastapi import Depends
 from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.application.ports.messaging.event_publisher import EventPublisher
 from app.application.use_cases.create_order import CreateOrderUseCase
 from app.application.use_cases.get_order_by_id import GetOrderUseCase
-from app.infrastructure.capashino_clients.catalog_client import CatalogClient
-from app.infrastructure.capashino_clients.payment_client import PaymentClient
-from app.infrastructure.capashino_clients.notification_client import NotificationClient
-from app.infrastructure.http.capashino_client import create_capashino_client
-from app.infrastructure.database.db import get_db_session, AsyncSessionFactory
-from app.infrastructure.database.repositories.sqlalchemy_order_repository import SqlAlchemyOrderRepository
-from app.infrastructure.database.repositories.sqlalchemy_inbox_repository import SqlAlchemyInboxRepository
-from app.infrastructure.database.repositories.sqlalchemy_outbox_repository import SqlAlchemyOutboxRepository
-from app.infrastructure.database.repositories.sqlalchemy_pending_payment_callback_repository import SqlAlchemyPendingPaymentCallbackRepository
-from app.infrastructure.uow.sqlalchemy_uow import SqlAlchemyUnitOfWork
-from app.infrastructure.uow.sqlalchemy_uow_factory import SqlAlchemyUnitOfWorkFactory
-from app.application.use_cases.process_payment_callback import ProcessPaymentCallbackUseCase
 from app.application.use_cases.process_outbox import ProcessOutboxUseCase
-from app.application.ports.messaging.event_publisher import EventPublisher
+from app.application.use_cases.process_payment_callback import (
+    ProcessPaymentCallbackUseCase,
+)
 from app.application.use_cases.process_shipping_event import ProcessShippingEventUseCase
 from app.config.setting import settings
+from app.infrastructure.capashino_clients.catalog_client import CatalogClient
+from app.infrastructure.capashino_clients.notification_client import NotificationClient
+from app.infrastructure.capashino_clients.payment_client import PaymentClient
+from app.infrastructure.database.db import AsyncSessionFactory, get_db_session
+from app.infrastructure.database.repositories.sqlalchemy_inbox_repository import (
+    SqlAlchemyInboxRepository,
+)
+from app.infrastructure.database.repositories.sqlalchemy_order_repository import (
+    SqlAlchemyOrderRepository,
+)
+from app.infrastructure.database.repositories.sqlalchemy_outbox_repository import (
+    SqlAlchemyOutboxRepository,
+)
+from app.infrastructure.database.repositories.sqlalchemy_pending_payment_callback_repository import (
+    SqlAlchemyPendingPaymentCallbackRepository,
+)
+from app.infrastructure.http.capashino_client import create_capashino_client
+from app.infrastructure.uow.sqlalchemy_uow import SqlAlchemyUnitOfWork
+from app.infrastructure.uow.sqlalchemy_uow_factory import SqlAlchemyUnitOfWorkFactory
+
 
 def get_catalog_client(client: Annotated[AsyncClient, Depends(create_capashino_client)]) -> CatalogClient:
     return CatalogClient(client)
@@ -57,10 +68,10 @@ def get_create_order_use_case(payment_port: Annotated[PaymentClient, Depends(get
                               uow_factory: Annotated[SqlAlchemyUnitOfWorkFactory, Depends(get_uow_factory)],
                               notification_port: Annotated[NotificationClient, Depends(get_notification_client)],
                               callback_url=settings.PAYMENT_CALLBACK_URL) -> CreateOrderUseCase:
-    
-    return CreateOrderUseCase(uow_factory, 
-                              catalog_port, 
-                              payment_port, 
+
+    return CreateOrderUseCase(uow_factory,
+                              catalog_port,
+                              payment_port,
                               notification_port,
                               callback_url,)
 
