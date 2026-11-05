@@ -16,7 +16,7 @@ class NotificationClient(NotificationPort):
         try:
             response = await self.client.post(f"/api/notifications",
                                               json={"message": notification.message,
-                                                    "reference_id": notification.reference_id,
+                                                    "reference_id": str(notification.reference_id),
                                                     "idempotency_key": notification.idempotency_key})
 
             response.raise_for_status()
