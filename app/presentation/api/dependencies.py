@@ -79,6 +79,10 @@ def build_process_outbox_use_case_for_lifespan(publisher: EventPublisher) -> Pro
  return ProcessOutboxUseCase(uow_factory=get_uow_factory(),
                              event_publisher=publisher)
 
+def build_notification_client_for_lifespan() -> NotificationClient:
+    client = create_capashino_client
+    return NotificationClient(client)
+
 def build_process_shipping_event_use_case_for_lifespan() -> ProcessShippingEventUseCase:
     return ProcessShippingEventUseCase(uow_factory=get_uow_factory(),
-                                       notification_port=get_notification_client(create_capashino_client))
+                                       notification_port=build_notification_client_for_lifespan())
