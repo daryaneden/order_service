@@ -31,6 +31,13 @@ class NotificationClient(NotificationPort):
             
             response.raise_for_status()
 
+            logger.info(
+    "Notification sent successfully: order_id=%s, idempotency_key=%s, status=%s",
+    notification.reference_id,
+    notification.idempotency_key,
+    response.status_code,
+)
+
         except TimeoutException:
             logger.warning(
                 "Notification request for order %s timed out",
@@ -39,10 +46,12 @@ class NotificationClient(NotificationPort):
 
         except HTTPStatusError as exc:
             logger.warning(
-                "Notifications Service returned status %s for order %s",
-                exc.response.status_code,
-                notification.reference_id,
-            )
+        "Notifications Service returned an error for order %s. "
+        "Status: %s. Response: %s",
+        notification.reference_id,
+        exc.response.status_code,
+        exc.response.text,
+    )
 
         except RequestError:
             logger.exception(
