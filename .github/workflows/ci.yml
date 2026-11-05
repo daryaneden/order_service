@@ -65,13 +65,6 @@ jobs:
       - name: Install dependencies
         run: uv sync --frozen
 
-      - name: Debug Python imports
-        run: |
-          pwd
-          ls -la
-          ls -la app
-          uv run python -c "import sys; print(sys.path); import app; print(app.__file__)"
-
       - name: Run unit tests
         run: uv run pytest tests
 
