@@ -5,16 +5,20 @@ from app.application.ports.uow_factory import UnitOfWorkFactory
 from app.application.exceptions import OrderNotFoundException, PaymentMismatchException, PaymentAmountMismatchException, PaymentStatusConflictException, InvalidPaymentStatusException, PaymentNotReadyException
 from app.domain.enums.payment_status import PaymentStatus
 from app.domain.enums.order_status import OrderStatus
+from app.application.dtos.notification_message import NotificationMessage
+from app.application.ports.notification_port import NotificationPort
 
 import logging
-from uuid import UUID, uuid4
+from uuid import uuid4
 
 logger = logging.getLogger(__name__)
 
 class ProcessPaymentCallbackUseCase:
 
-    def __init__(self, uow_factory: UnitOfWorkFactory):
+    def __init__(self, uow_factory: UnitOfWorkFactory,
+                 notification_port: NotificationPort,):
         self.uow_factory = uow_factory
+        self.notification_port = notification_port
 
     async def __call__(self, callback: PaymentCallbackDto):
         logger.info(
@@ -121,3 +125,19 @@ class ProcessPaymentCallbackUseCase:
                 raise InvalidPaymentStatusException()
 
             await uow.order_repository.update_order(order)
+
+        if callback.status == PaymentStatus.SUCCEEDED:
+            notification = NotificationMessage(
+                message="Your order has been paid",
+                reference_id=order.id,
+                idempotency_key=f"order:{order.id}:PAID",
+            )
+            await self.notification_port.send_notification(notification)
+
+        elif callback.status == PaymentStatus.FAILED:
+            notification = NotificationMessage(
+                message="Your order has been cancelled because the payment failed",
+                reference_id=order.id,
+                idempotency_key=f"order:{order.id}:CANCELLED",
+            )
+            await self.notification_port.send_notification(notification)

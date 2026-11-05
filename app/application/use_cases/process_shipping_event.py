@@ -17,14 +17,18 @@ from app.application.exceptions import (
     InvalidEventPayloadException,
 )
 from app.application.dtos.outbox_message import EventType
+from app.application.dtos.notification_message import NotificationMessage
+from app.application.ports.notification_port import NotificationPort
 
 logger = logging.getLogger(__name__)
 
 
 class ProcessShippingEventUseCase:
 
-    def __init__(self, uow_factory: UnitOfWorkFactory):
+    def __init__(self, uow_factory: UnitOfWorkFactory,
+                 notification_port: NotificationPort):
         self.uow_factory = uow_factory
+        self.notification_port = notification_port
 
     async def __call__(
         self,
@@ -109,3 +113,20 @@ class ProcessShippingEventUseCase:
                 order_id,
                 event_type,
             )
+        if event_type == EventType.ORDER_SHIPPED:
+            notification = NotificationMessage(
+                message="Your order has been shipped",
+                reference_id=order.id,
+                idempotency_key=f"order:{order.id}:SHIPPED",
+            )
+
+            await self.notification_port.send_notification(notification)
+
+        elif event_type == EventType.ORDER_CANCELLED:
+            notification = NotificationMessage(
+                message="Your order has been cancelled",
+                reference_id=order.id,
+                idempotency_key=f"order:{order.id}:CANCELLED",
+            )
+
+            await self.notification_port.send_notification(notification)

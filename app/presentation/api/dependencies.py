@@ -8,6 +8,7 @@ from app.application.use_cases.create_order import CreateOrderUseCase
 from app.application.use_cases.get_order_by_id import GetOrderUseCase
 from app.infrastructure.capashino_clients.catalog_client import CatalogClient
 from app.infrastructure.capashino_clients.payment_client import PaymentClient
+from app.infrastructure.capashino_clients.notification_client import NotificationClient
 from app.infrastructure.http.capashino_client import create_capashino_client
 from app.infrastructure.database.db import get_db_session, AsyncSessionFactory
 from app.infrastructure.database.repositories.sqlalchemy_order_repository import SqlAlchemyOrderRepository
@@ -27,6 +28,9 @@ def get_catalog_client(client: Annotated[AsyncClient, Depends(create_capashino_c
 
 def get_payment_client(client: Annotated[AsyncClient, Depends(create_capashino_client)]) -> PaymentClient:
     return PaymentClient(client)
+
+def get_notification_client(client: Annotated[AsyncClient, Depends(create_capashino_client)]) -> NotificationClient:
+    return NotificationClient(client)
 
 def get_order_repository(session: Annotated[AsyncSession, Depends(get_db_session)]) -> SqlAlchemyOrderRepository:
     return SqlAlchemyOrderRepository(session)
