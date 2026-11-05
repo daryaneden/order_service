@@ -13,12 +13,22 @@ class NotificationClient(NotificationPort):
         self.client = client
 
     async def send_notification(self, notification: NotificationMessage) -> None:
+        logger.info(
+        "Sending notification: reference_id=%s, idempotency_key=%s, message=%s",
+        notification.reference_id,
+        notification.idempotency_key,
+        notification.message,
+    )
         try:
             response = await self.client.post(f"/api/notifications",
                                               json={"message": notification.message,
                                                     "reference_id": str(notification.reference_id),
                                                     "idempotency_key": notification.idempotency_key})
-
+            logger.info(
+                "Notification sent successfully: reference_id=%s, status_code=%s",
+                notification.reference_id,
+                response.status_code)
+            
             response.raise_for_status()
 
         except TimeoutException:
