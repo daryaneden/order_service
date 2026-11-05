@@ -9,12 +9,10 @@ from app.application.ports.repositories.pending_payment_callback_repository impo
 
 
 class UnitOfWork(ABC):
-
     order_repository: OrderRepository
     outbox_repository: OutboxRepository
     inbox_repository: InboxRepository
     pending_payment_callback_repository: PendingPaymentCallbackRepository
-
 
     async def __aenter__(self):
         return self

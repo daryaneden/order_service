@@ -5,7 +5,7 @@ from app.application.dtos.outbox_message import OutboxMessageDto, PendingOutboxM
 
 
 class OutboxRepository(ABC):
-
+    @abstractmethod
     async def save(self, message: OutboxMessageDto) -> None:
         pass
 

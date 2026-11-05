@@ -2,19 +2,17 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
-
-    model_config = SettingsConfigDict(env_file='.env',
-                                      env_file_encoding='utf-8')
+    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
 
     CAPASHINO_CLIENT_URL: str
     CAPASHINO_API_KEY: str
 
-    POSTGRES_HOST: str = 'db'
+    POSTGRES_HOST: str = "db"
     POSTGRES_PORT: int = 5432
-    POSTGRES_USERNAME: str = 'postgres'
-    POSTGRES_PASSWORD: str = 'password'
-    DB_DRIVER: str = 'postgresql+asyncpg'
-    POSTGRES_DB: str = 'student_daryaneden-order-service-postgres'
+    POSTGRES_USERNAME: str = "postgres"
+    POSTGRES_PASSWORD: str = "password"
+    DB_DRIVER: str = "postgresql+asyncpg"
+    POSTGRES_DB: str = "student_daryaneden-order-service-postgres"
 
     PAYMENT_CALLBACK_URL: str
 
@@ -22,11 +20,9 @@ class Settings(BaseSettings):
     KAFKA_ORDER_TOPIC: str
     KAFKA_SHIPMENT_TOPIC: str
 
-
     @property
     def db_url(self):
-        return f'{self.DB_DRIVER}://{self.POSTGRES_USERNAME}:{self.POSTGRES_PASSWORD}@{self.POSTGRES_HOST}:{self.POSTGRES_PORT}/{self.POSTGRES_DB}'
+        return f"{self.DB_DRIVER}://{self.POSTGRES_USERNAME}:{self.POSTGRES_PASSWORD}@{self.POSTGRES_HOST}:{self.POSTGRES_PORT}/{self.POSTGRES_DB}"
+
 
 settings = Settings()
-
-

@@ -6,7 +6,6 @@ from app.domain.entities.order import Order
 
 
 class GetOrderUseCase:
-
     def __init__(self, order_repository: OrderRepository):
         self.repository = order_repository
 

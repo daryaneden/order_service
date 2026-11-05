@@ -11,9 +11,14 @@ from app.presentation.api.schemas.payment import PaymentCallbackRequest
 
 router = APIRouter(prefix="/api/orders", tags=["Orders"])
 
+
 @router.post("/payment-callback", status_code=200)
-async def payment_callback(callback_data: PaymentCallbackRequest,
-    use_case: Annotated[ProcessPaymentCallbackUseCase, Depends(get_process_payment_callback_use_case)]):
+async def payment_callback(
+    callback_data: PaymentCallbackRequest,
+    use_case: Annotated[
+        ProcessPaymentCallbackUseCase, Depends(get_process_payment_callback_use_case)
+    ],
+):
 
     callback = to_payment_callback_dto(callback_data)
 

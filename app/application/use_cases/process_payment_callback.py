@@ -19,46 +19,58 @@ from app.domain.enums.payment_status import PaymentStatus
 
 logger = logging.getLogger(__name__)
 
-class ProcessPaymentCallbackUseCase:
 
-    def __init__(self, uow_factory: UnitOfWorkFactory,
-                 notification_port: NotificationPort,):
+class ProcessPaymentCallbackUseCase:
+    def __init__(
+        self,
+        uow_factory: UnitOfWorkFactory,
+        notification_port: NotificationPort,
+    ):
         self.uow_factory = uow_factory
         self.notification_port = notification_port
 
     async def __call__(self, callback: PaymentCallbackDto):
 
         async with self.uow_factory() as uow:
-            order = await uow.order_repository.get_order_by_id_for_update(callback.order_id)
+            order = await uow.order_repository.get_order_by_id_for_update(
+                callback.order_id
+            )
 
             if order is None:
-                logger.warning("Payment callback references unknown order: order_id=%s",
-                callback.order_id)
+                logger.warning(
+                    "Payment callback references unknown order: order_id=%s",
+                    callback.order_id,
+                )
                 raise OrderNotFoundException()
 
-
             if order.payment_id is None:
-                logger.warning("Payment callback arrived before payment_id was saved: "
+                logger.warning(
+                    "Payment callback arrived before payment_id was saved: "
                     "order_id=%s, callback_payment_id=%s",
                     order.id,
-                    callback.payment_id)
+                    callback.payment_id,
+                )
 
-                pending_callback = PendingPaymentCallbackDto(id=uuid4(),
-                                                            order_id=callback.order_id,
-                                                            payment_id=callback.payment_id,
-                                                            status=callback.status,
-                                                            amount=callback.amount)
+                pending_callback = PendingPaymentCallbackDto(
+                    id=uuid4(),
+                    order_id=callback.order_id,
+                    payment_id=callback.payment_id,
+                    status=callback.status,
+                    amount=callback.amount,
+                )
 
                 await uow.pending_payment_callback_repository.save(pending_callback)
 
                 return
 
             if order.payment_id != callback.payment_id:
-                logger.error("Payment ID mismatch: order_id=%s, stored_payment_id=%s, "
+                logger.error(
+                    "Payment ID mismatch: order_id=%s, stored_payment_id=%s, "
                     "callback_payment_id=%s",
                     order.id,
                     order.payment_id,
-                    callback.payment_id)
+                    callback.payment_id,
+                )
 
                 raise PaymentMismatchException()
 
@@ -67,18 +79,21 @@ class ProcessPaymentCallbackUseCase:
             if expected_amount != callback.amount:
                 raise PaymentAmountMismatchException()
 
-            if (order.payment_status == PaymentStatus.SUCCEEDED
+            if (
+                order.payment_status == PaymentStatus.SUCCEEDED
                 and order.status == OrderStatus.PAID
-                and callback.status == PaymentStatus.SUCCEEDED):
+                and callback.status == PaymentStatus.SUCCEEDED
+            ):
                 return
 
-            if (order.payment_status == PaymentStatus.FAILED
+            if (
+                order.payment_status == PaymentStatus.FAILED
                 and order.status == OrderStatus.CANCELLED
-                and callback.status == PaymentStatus.FAILED):
+                and callback.status == PaymentStatus.FAILED
+            ):
                 return
 
-            if order.payment_status in (PaymentStatus.SUCCEEDED,
-                PaymentStatus.FAILED):
+            if order.payment_status in (PaymentStatus.SUCCEEDED, PaymentStatus.FAILED):
                 raise PaymentStatusConflictException()
 
             if order.payment_status != PaymentStatus.PENDING:
@@ -88,12 +103,16 @@ class ProcessPaymentCallbackUseCase:
                 order.payment_status = PaymentStatus.SUCCEEDED
                 order.status = OrderStatus.PAID
 
-                event = OutboxMessageDto(event_type=EventType.ORDER_PAID,
-                                         payload={"event_type": EventType.ORDER_PAID.value,
-                                                  "order_id": str(order.id),
-                                                  "item_id": str(order.item_id),
-                                                  "quantity": int(order.quantity),
-                                                  "idempotency_key": str(order.idempotency_key)})
+                event = OutboxMessageDto(
+                    event_type=EventType.ORDER_PAID,
+                    payload={
+                        "event_type": EventType.ORDER_PAID.value,
+                        "order_id": str(order.id),
+                        "item_id": str(order.item_id),
+                        "quantity": int(order.quantity),
+                        "idempotency_key": str(order.idempotency_key),
+                    },
+                )
 
                 await uow.outbox_repository.save(event)
 
@@ -107,13 +126,17 @@ class ProcessPaymentCallbackUseCase:
             await uow.order_repository.update_order(order)
 
         if callback.status == PaymentStatus.SUCCEEDED:
-            notification = NotificationMessage(message="PAID",
+            notification = NotificationMessage(
+                message="PAID",
                 reference_id=order.id,
-                idempotency_key=f"order:{order.id}:PAID")
+                idempotency_key=f"order:{order.id}:PAID",
+            )
             await self.notification_port.send_notification(notification)
 
         elif callback.status == PaymentStatus.FAILED:
-            notification = NotificationMessage(message="CANCELLED",
+            notification = NotificationMessage(
+                message="CANCELLED",
                 reference_id=order.id,
-                idempotency_key=f"order:{order.id}:CANCELLED")
+                idempotency_key=f"order:{order.id}:CANCELLED",
+            )
             await self.notification_port.send_notification(notification)

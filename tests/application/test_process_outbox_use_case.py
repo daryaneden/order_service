@@ -61,27 +61,3 @@ async def test_publishes_pending_messages_successfully(
     assert outbox_repository.mark_as_published.await_count == 2
     outbox_repository.mark_as_published.assert_any_await(message_1.id)
     outbox_repository.mark_as_published.assert_any_await(message_2.id)
-
-@pytest.mark.asyncio
-async def test_publishes_pending_messages_successfully(
-    process_outbox_use_case,
-    outbox_repository,
-    event_publisher,
-    outbox_messages,
-):
-    outbox_repository.get_pending.return_value = outbox_messages
-
-    await process_outbox_use_case(topic="test-topic")
-
-    assert event_publisher.publish.await_count == 2
-
-    for message in outbox_messages:
-        event_publisher.publish.assert_any_await(
-            topic="test-topic",
-            message=message.payload,
-            key=message.payload["order_id"],
-        )
-
-        outbox_repository.mark_as_published.assert_any_await(message.id)
-
-    assert outbox_repository.mark_as_published.await_count == 2

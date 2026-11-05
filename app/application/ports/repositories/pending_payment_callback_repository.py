@@ -5,7 +5,6 @@ from app.application.dtos.pending_payment_callback_dto import PendingPaymentCall
 
 
 class PendingPaymentCallbackRepository(ABC):
-
     @abstractmethod
     async def save(self, callback: PendingPaymentCallbackDto) -> None:
         pass
@@ -16,7 +15,7 @@ class PendingPaymentCallbackRepository(ABC):
 
     @abstractmethod
     async def get_all_by_order_id(
-            self,
-            order_id: UUID,
-        ) -> list[PendingPaymentCallbackDto]:
+        self,
+        order_id: UUID,
+    ) -> list[PendingPaymentCallbackDto]:
         pass

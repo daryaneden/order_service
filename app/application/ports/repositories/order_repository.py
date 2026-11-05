@@ -6,7 +6,6 @@ from app.domain.entities.order import Order
 
 
 class OrderRepository(ABC):
-
     @abstractmethod
     async def create_order(order: OrderDto) -> Order:
         pass
@@ -17,7 +16,7 @@ class OrderRepository(ABC):
 
     @abstractmethod
     async def get_by_idempotency_key(self, idempotency_key: str) -> Order | None:
-            pass
+        pass
 
     @abstractmethod
     async def update_order(self, order: Order) -> Order:
@@ -25,4 +24,4 @@ class OrderRepository(ABC):
 
     @abstractmethod
     async def get_order_by_id_for_update(self, order_id: UUID) -> Order | None:
-         pass
+        pass

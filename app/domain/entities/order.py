@@ -51,4 +51,3 @@ class Order:
             raise InvalidOrderStatusTransitionError(self.status, OrderStatus.CANCELLED)
 
         self.status = OrderStatus.CANCELLED
-

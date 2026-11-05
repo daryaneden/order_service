@@ -18,13 +18,11 @@ app.include_router(create_order)
 app.include_router(get_order_router)
 app.include_router(payment_router)
 
+
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request, exc):
-    logger.error ("Request validation failed: %s",
-    exc.errors())
+    logger.error("Request validation failed: %s", exc.errors())
 
-    logger.error("Request body: %s",
-        exc.body)
+    logger.error("Request body: %s", exc.body)
 
-    return JSONResponse(status_code=422,
-        content={"detail": exc.errors()})
+    return JSONResponse(status_code=422, content={"detail": exc.errors()})

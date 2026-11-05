@@ -8,7 +8,6 @@ from app.domain.entities.catalog_item import CatalogItem
 
 
 class CatalogClient(CatalogPort):
-
     def __init__(self, client: AsyncClient):
         self.client = client
 
@@ -22,4 +21,5 @@ class CatalogClient(CatalogPort):
             id=UUID(data["id"]),
             name=data["name"],
             price=Decimal(data["price"]),
-            available_qty=data["available_qty"])
+            available_qty=data["available_qty"],
+        )

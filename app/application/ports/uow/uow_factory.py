@@ -4,7 +4,6 @@ from app.application.ports.uow.uow import UnitOfWork
 
 
 class UnitOfWorkFactory(ABC):
-
     @abstractmethod
     def __call__(self) -> UnitOfWork:
         pass

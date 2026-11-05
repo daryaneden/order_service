@@ -9,6 +9,7 @@ class EventType(StrEnum):
     ORDER_SHIPPED = "order.shipped"
     ORDER_CANCELLED = "order.cancelled"
 
+
 @dataclass
 class OutboxMessageDto:
     event_type: EventType

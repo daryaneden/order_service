@@ -19,17 +19,20 @@ from app.domain.enums.payment_status import PaymentStatus
 
 
 class PaymentClient(PaymentPort):
-
     def __init__(self, client: AsyncClient):
         self.client = client
 
     async def create_payment(self, data: CreatePaymentDto) -> PaymentDto:
         try:
-            response = await self.client.post("/api/payments",
-                json={"order_id": str(data.order_id),
+            response = await self.client.post(
+                "/api/payments",
+                json={
+                    "order_id": str(data.order_id),
                     "amount": str(data.amount),
                     "callback_url": data.callback_url,
-                    "idempotency_key": data.idempotency_key})
+                    "idempotency_key": data.idempotency_key,
+                },
+            )
 
             response.raise_for_status()
             payload = response.json()
@@ -39,7 +42,8 @@ class PaymentClient(PaymentPort):
                 order_id=UUID(payload["order_id"]),
                 amount=Decimal(payload["amount"]),
                 status=PaymentStatus(payload["status"]),
-                idempotency_key=payload["idempotency_key"])
+                idempotency_key=payload["idempotency_key"],
+            )
 
         except TimeoutException as exc:
             raise PaymentCreationUnknownException() from exc
@@ -55,4 +59,3 @@ class PaymentClient(PaymentPort):
 
         except RequestError as exc:
             raise PaymentCreationUnknownException() from exc
-

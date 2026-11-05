@@ -12,6 +12,7 @@ class CreatePaymentDto:
     callback_url: str
     idempotency_key: str
 
+
 @dataclass
 class PaymentDto:
     id: UUID
@@ -19,6 +20,7 @@ class PaymentDto:
     amount: Decimal
     status: PaymentStatus
     idempotency_key: str
+
 
 @dataclass
 class PaymentCallbackDto:
