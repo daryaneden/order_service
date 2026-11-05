@@ -55,19 +55,23 @@ def get_uow_factory() -> SqlAlchemyUnitOfWorkFactory:
 def get_create_order_use_case(payment_port: Annotated[PaymentClient, Depends(get_payment_client)],
                               catalog_port: Annotated[CatalogClient, Depends(get_catalog_client)],
                               uow_factory: Annotated[SqlAlchemyUnitOfWorkFactory, Depends(get_uow_factory)],
+                              notification_port: Annotated[NotificationClient, Depends(get_notification_client)],
                               callback_url=settings.PAYMENT_CALLBACK_URL) -> CreateOrderUseCase:
     
     return CreateOrderUseCase(uow_factory, 
                               catalog_port, 
                               payment_port, 
-                              callback_url)
+                              callback_url,
+                              notification_port)
 
 def get_get_order_by_id_use_case(order_repository: Annotated[SqlAlchemyOrderRepository, Depends(get_order_repository)]) -> GetOrderUseCase:
     return GetOrderUseCase(order_repository)
 
 
-def get_process_payment_callback_use_case(uow_factory: Annotated[SqlAlchemyUnitOfWorkFactory, Depends(get_uow_factory)]) -> ProcessPaymentCallbackUseCase:
-    return ProcessPaymentCallbackUseCase(uow_factory=uow_factory)
+def get_process_payment_callback_use_case(uow_factory: Annotated[SqlAlchemyUnitOfWorkFactory, Depends(get_uow_factory)],
+                                          notification_port: Annotated[NotificationClient, Depends(get_notification_client)]) -> ProcessPaymentCallbackUseCase:
+    return ProcessPaymentCallbackUseCase(uow_factory,
+                                         notification_port)
 
 #DI for lifespan
 
@@ -76,4 +80,5 @@ def build_process_outbox_use_case_for_lifespan(publisher: EventPublisher) -> Pro
                              event_publisher=publisher)
 
 def build_process_shipping_event_use_case_for_lifespan() -> ProcessShippingEventUseCase:
-    return ProcessShippingEventUseCase(uow_factory=get_uow_factory())
+    return ProcessShippingEventUseCase(uow_factory=get_uow_factory(),
+                                       notification_port=get_notification_client())
