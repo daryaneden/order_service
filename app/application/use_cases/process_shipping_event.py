@@ -115,7 +115,7 @@ class ProcessShippingEventUseCase:
             )
         if event_type == EventType.ORDER_SHIPPED:
             notification = NotificationMessage(
-                message="Your order has been shipped",
+                message="SHIPPED",
                 reference_id=order.id,
                 idempotency_key=f"order:{order.id}:SHIPPED",
             )
@@ -124,7 +124,7 @@ class ProcessShippingEventUseCase:
 
         elif event_type == EventType.ORDER_CANCELLED:
             notification = NotificationMessage(
-                message="Your order has been cancelled",
+                message="CANCELLED",
                 reference_id=order.id,
                 idempotency_key=f"order:{order.id}:CANCELLED",
             )

@@ -73,7 +73,7 @@ class CreateOrderUseCase:
         async with self.uow_factory() as uow:
             await uow.order_repository.create_order(order)
 
-        notification = NotificationMessage(message="Your order has been created",
+        notification = NotificationMessage(message="NEW",
                                             reference_id=order.id,
                                             idempotency_key=f"order:{order.id}:NEW")
                 
@@ -192,7 +192,7 @@ class CreateOrderUseCase:
             await uow.order_repository.update_order(locked_order)
        
         if locked_order.payment_status == PaymentStatus.SUCCEEDED:
-            notification = NotificationMessage(message="Your order has been paid",
+            notification = NotificationMessage(message="PAID",
                                                reference_id=locked_order.id,
                                                idempotency_key=f"order:{locked_order.id}:PAID")
 
@@ -200,7 +200,7 @@ class CreateOrderUseCase:
 
         if locked_order.payment_status == PaymentStatus.FAILED:
             notification = NotificationMessage(
-                message="Your order has been cancelled because the payment failed",
+                message="CANCELLED",
                 reference_id=locked_order.id,
                 idempotency_key=f"order:{locked_order.id}:CANCELLED",
             )

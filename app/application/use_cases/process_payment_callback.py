@@ -128,7 +128,7 @@ class ProcessPaymentCallbackUseCase:
 
         if callback.status == PaymentStatus.SUCCEEDED:
             notification = NotificationMessage(
-                message="Your order has been paid",
+                message="PAID",
                 reference_id=order.id,
                 idempotency_key=f"order:{order.id}:PAID",
             )
@@ -136,7 +136,7 @@ class ProcessPaymentCallbackUseCase:
 
         elif callback.status == PaymentStatus.FAILED:
             notification = NotificationMessage(
-                message="Your order has been cancelled because the payment failed",
+                message="CANCELLED",
                 reference_id=order.id,
                 idempotency_key=f"order:{order.id}:CANCELLED",
             )
