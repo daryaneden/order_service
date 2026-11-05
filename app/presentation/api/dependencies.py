@@ -61,8 +61,8 @@ def get_create_order_use_case(payment_port: Annotated[PaymentClient, Depends(get
     return CreateOrderUseCase(uow_factory, 
                               catalog_port, 
                               payment_port, 
-                              callback_url,
-                              notification_port)
+                              notification_port,
+                              callback_url,)
 
 def get_get_order_by_id_use_case(order_repository: Annotated[SqlAlchemyOrderRepository, Depends(get_order_repository)]) -> GetOrderUseCase:
     return GetOrderUseCase(order_repository)
