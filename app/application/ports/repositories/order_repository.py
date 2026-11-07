@@ -1,13 +1,12 @@
 from abc import ABC, abstractmethod
 from uuid import UUID
 
-from app.application.dtos.order import OrderDto
 from app.domain.entities.order import Order
 
 
 class OrderRepository(ABC):
     @abstractmethod
-    async def create_order(order: OrderDto) -> Order:
+    async def create_order(self, order: Order) -> Order:
         pass
 
     @abstractmethod

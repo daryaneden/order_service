@@ -9,7 +9,7 @@ from app.config.setting import Settings
 settings = Settings()
 
 engine = create_async_engine(
-    url=settings.db_url, future=True, echo=True, pool_pre_ping=True
+    url=settings.db_url, future=True, echo=False, pool_pre_ping=True
 )
 
 AsyncSessionFactory = async_sessionmaker(

@@ -88,8 +88,7 @@ def get_create_order_use_case(
     payment_port: Annotated[PaymentClient, Depends(get_payment_client)],
     catalog_port: Annotated[CatalogClient, Depends(get_catalog_client)],
     uow_factory: Annotated[SqlAlchemyUnitOfWorkFactory, Depends(get_uow_factory)],
-    notification_port: Annotated[NotificationClient, Depends(get_notification_client)],
-    callback_url=settings.PAYMENT_CALLBACK_URL,
+    notification_port: Annotated[NotificationClient, Depends(get_notification_client)]
 ) -> CreateOrderUseCase:
 
     return CreateOrderUseCase(
@@ -97,7 +96,7 @@ def get_create_order_use_case(
         catalog_port,
         payment_port,
         notification_port,
-        callback_url,
+        settings.PAYMENT_CALLBACK_URL
     )
 
 

@@ -1,11 +1,11 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
-
+from pydantic import SecretStr
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
 
     CAPASHINO_CLIENT_URL: str
-    CAPASHINO_API_KEY: str
+    CAPASHINO_API_KEY: SecretStr
 
     POSTGRES_HOST: str = "db"
     POSTGRES_PORT: int = 5432
