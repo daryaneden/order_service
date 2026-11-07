@@ -27,7 +27,8 @@ class SqlAlchemyOutboxRepository(OutboxRepository):
     async def get_pending(self) -> list[PendingOutboxMessage]:
         result = await self.session.execute(
             select(OutboxEventModel)
-            .where(OutboxEventModel.status == "pending").with_for_update(skip_locked=True)
+            .where(OutboxEventModel.status == "pending")
+            .with_for_update(skip_locked=True)
             .order_by(OutboxEventModel.created_at))
 
         events = result.scalars().all()

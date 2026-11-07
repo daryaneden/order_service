@@ -4,7 +4,6 @@ from httpx import AsyncClient
 
 from app.config.setting import settings
 
-
 # def create_capashino_client() -> AsyncClient:
 #     return AsyncClient(
 #         base_url=settings.CAPASHINO_CLIENT_URL,
