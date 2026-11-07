@@ -1,3 +1,4 @@
+from contextlib import asynccontextmanager
 from typing import Annotated
 
 from fastapi import Depends
@@ -125,10 +126,18 @@ def build_process_outbox_use_case_for_lifespan(
         uow_factory=get_uow_factory(), event_publisher=publisher
     )
 
-
-def build_notification_client_for_lifespan() -> NotificationClient:
-    client = create_capashino_client()
-    return NotificationClient(client)
+@asynccontextmanager
+async def build_notification_client_for_lifespan():
+    # client = create_capashino_client()
+    # return NotificationClient(client)
+    async with AsyncClient(
+        base_url=settings.CAPASHINO_CLIENT_URL,
+        headers={
+            "x-api-key": settings.CAPASHINO_API_KEY.get_secret_value()
+        },
+        follow_redirects=True,
+    ) as client:
+        yield NotificationClient(client)
 
 
 def build_process_shipping_event_use_case_for_lifespan() -> ProcessShippingEventUseCase:

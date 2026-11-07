@@ -28,7 +28,7 @@ class PaymentClient(PaymentPort):
                 "/api/payments",
                 json={
                     "order_id": str(data.order_id),
-                    "amount": str(data.amount),
+                     "amount": str(data.amount),
                     "callback_url": data.callback_url,
                     "idempotency_key": data.idempotency_key,
                 },
@@ -38,12 +38,12 @@ class PaymentClient(PaymentPort):
             payload = response.json()
 
             return PaymentDto(
-                id=UUID(payload["id"]),
-                order_id=UUID(payload["order_id"]),
-                amount=Decimal(payload["amount"]),
-                status=PaymentStatus(payload["status"]),
-                idempotency_key=payload["idempotency_key"],
-            )
+                    id=UUID(payload["id"]),
+                    order_id=UUID(payload["order_id"]),
+                    amount=Decimal(payload["amount"]),
+                    status=PaymentStatus(payload["status"]),
+                    idempotency_key=payload["idempotency_key"],
+                )
 
         except TimeoutException as exc:
             raise PaymentCreationUnknownException() from exc
@@ -58,4 +58,4 @@ class PaymentClient(PaymentPort):
             raise PaymentCreationUnknownException() from exc
 
         except RequestError as exc:
-            raise PaymentCreationUnknownException() from exc
+                raise PaymentCreationUnknownException() from exc

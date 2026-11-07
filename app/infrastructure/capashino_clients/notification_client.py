@@ -14,7 +14,6 @@ class NotificationClient(NotificationPort):
         self.client = client
 
     async def send_notification(self, notification: NotificationMessage) -> None:
-
         try:
             response = await self.client.post(
                 "/api/notifications",
