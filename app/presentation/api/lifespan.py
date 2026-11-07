@@ -2,12 +2,14 @@ import asyncio
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
+from httpx import AsyncClient
 
 from app.config.setting import settings
 from app.infrastructure.kafka_messaging.event_consumer import KafkaEventConsumer
 from app.infrastructure.kafka_messaging.event_publisher import KafkaEventPublisher
 from app.infrastructure.outbox.outbox_worker import outbox_worker
 from app.presentation.api.dependencies import (
+    build_notification_client_for_lifespan,
     build_process_outbox_use_case_for_lifespan,
     build_process_shipping_event_use_case_for_lifespan,
 )
@@ -15,38 +17,51 @@ from app.presentation.api.dependencies import (
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    async with AsyncClient(
+        base_url=settings.CAPASHINO_CLIENT_URL,
+        headers={
+            "x-api-key": settings.CAPASHINO_API_KEY.get_secret_value()
+        },
+        follow_redirects=True,
+    ) as client:
 
-    publisher = KafkaEventPublisher(bootstrap_servers=settings.KAFKA_BOOTSTRAP_SERVERS)
+        notification_client = build_notification_client_for_lifespan(client)
 
-    await publisher.start()
+        inbox_use_case = build_process_shipping_event_use_case_for_lifespan(
+            notification_client
+        )
 
-    outbox_use_case = build_process_outbox_use_case_for_lifespan(publisher)
-    outbox_task = asyncio.create_task(
-        outbox_worker(outbox_use_case, settings.KAFKA_ORDER_TOPIC)
-    )
+        publisher = KafkaEventPublisher(
+            bootstrap_servers=settings.KAFKA_BOOTSTRAP_SERVERS
+        )
+        await publisher.start()
 
-    consumer = KafkaEventConsumer(
-        topic=settings.KAFKA_SHIPMENT_TOPIC,
-        bootstrap_servers=settings.KAFKA_BOOTSTRAP_SERVERS,
-        group_id="order-service",
-    )
+        outbox_use_case = build_process_outbox_use_case_for_lifespan(publisher)
+        outbox_task = asyncio.create_task(
+            outbox_worker(outbox_use_case, settings.KAFKA_ORDER_TOPIC)
+        )
 
-    await consumer.start()
+        consumer = KafkaEventConsumer(
+            topic=settings.KAFKA_SHIPMENT_TOPIC,
+            bootstrap_servers=settings.KAFKA_BOOTSTRAP_SERVERS,
+            group_id="order-service",
+        )
 
-    inbox_use_case = build_process_shipping_event_use_case_for_lifespan()
-    inbox_task = asyncio.create_task(consumer.consume(inbox_use_case))
+        await consumer.start()
 
-    try:
-        yield
-    finally:
-        outbox_task.cancel()
-        inbox_task.cancel()
+        inbox_task = asyncio.create_task(consumer.consume(inbox_use_case))
 
-        for task in (outbox_task, inbox_task):
-            try:
-                await task
-            except asyncio.CancelledError:
-                pass
+        try:
+            yield
+        finally:
+            outbox_task.cancel()
+            inbox_task.cancel()
 
-        await consumer.stop()
-        await publisher.stop()
+            for task in (outbox_task, inbox_task):
+                try:
+                    await task
+                except asyncio.CancelledError:
+                    pass
+
+            await consumer.stop()
+            await publisher.stop()
